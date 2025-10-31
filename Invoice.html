@@ -1,0 +1,206 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live Invoice Generator</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 30px;
+        background-color: #fff;
+    }
+    h2 {
+        font-size: 22px;
+        margin-bottom: 5px;
+    }
+    .invoice-box {
+        border: 1px solid #ccc;
+        padding: 15px 20px;
+        width: 600px;
+    }
+    label {
+        display: block;
+        margin-top: 10px;
+    }
+    input[type="text"], input[type="number"], input[type="date"] {
+        padding: 5px;
+        width: 200px;
+        margin-top: 3px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+    th, td {
+        border: 1px solid #999;
+        padding: 5px;
+        text-align: center;
+    }
+    th {
+        background-color: #f5f5f5;
+    }
+    .summary-table td {
+        text-align: right;
+        border: 1px solid #ccc;
+        padding: 6px 8px;
+    }
+    .summary-table tr td:first-child {
+        text-align: left;
+    }
+    .summary-table {
+        margin-top: 10px;
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .add-item {
+        margin-top: 10px;
+    }
+    .add-item input {
+        width: 100px;
+        margin-right: 5px;
+    }
+    .discount {
+        margin-top: 15px;
+    }
+    .section-title {
+        font-weight: bold;
+        margin-top: 15px;
+        text-decoration: underline;
+    }
+</style>
+</head>
+<body>
+
+<h2>  🗒️Live Invoice Generator</h2>
+<div class="invoice-box">
+    <label>Customer Name:</label>
+    <input type="text" id="customerName" value="Mr. Syden">
+
+    <label>Invoice Date:</label>
+    <input type="date" id="invoiceDate" value="2025-10-10">
+
+    <div class="add-item">
+        <h4>Add Item</h4>
+        <input type="text" id="itemName" placeholder="Item name">
+        <input type="number" id="qty" placeholder="Qty">
+        <input type="number" id="price" placeholder="Price">
+        <button onclick="addItem()">Add Item</button>
+    </div>
+
+    <div class="items-list">
+        <h4>Items List</h4>
+        <table id="itemsTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Iphone</td>
+                    <td>2</td>
+                    <td>500.00</td>
+                    <td>1000.00</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>PC</td>
+                    <td>3</td>
+                    <td>900.00</td>
+                    <td>2700.00</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="discount">
+        <label>Discount (%):</label>
+        <input type="number" id="discount" value="10">
+    </div>
+
+    <div class="invoice-summary">
+        <h4>Invoice Summary</h4>
+        <p>Customer: <span id="summaryCustomer">Mr. Syden</span></p>
+        <p>Date: <span id="summaryDate">2025-10-10</span></p>
+
+        <table class="summary-table">
+            <tr>
+                <td>Subtotal</td>
+                <td>3700.00</td>
+            </tr>
+            <tr>
+                <td>Discount (10%)</td>
+                <td>-370.00</td>
+            </tr>
+            <tr>
+                <td>VAT (10%)</td>
+                <td>+333.00</td>
+            </tr>
+            <tr>
+                <td><b>Grand Total</b></td>
+                <td><b>3663.00</b></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<script>
+let items = [
+    { name: "Iphone", qty: 2, price: 500 },
+    { name: "PC", qty: 3, price: 900 }
+];
+
+function addItem() {
+    const name = document.getElementById("itemName").value;
+    const qty = parseInt(document.getElementById("qty").value);
+    const price = parseFloat(document.getElementById("price").
+    value);
+    if (!name  !qty  !price) return alert("Please fill all fields!");
+    items.push({ name, qty, price });
+    renderItems();
+}
+
+function renderItems() {
+    const tbody = document.querySelector("#itemsTable tbody");
+    tbody.innerHTML = "";
+    let subtotal = 0;
+    items.forEach((item, i) => {
+        const sub = item.qty * item.price;
+        subtotal += sub;
+        tbody.innerHTML += `
+            <tr>
+                <td>${i + 1}</td>
+                <td>${item.name}</td>
+                <td>${item.qty}</td>
+                <td>${item.price.toFixed(2)}</td>
+                <td>${sub.toFixed(2)}</td>
+            </tr>`;
+    });
+
+    const discountPercent = parseFloat(document.getElementById("discount").value) || 0;
+    const discount = subtotal * discountPercent / 100;
+    const vat = (subtotal - discount) * 0.1;
+    const total = subtotal - discount + vat;
+
+    document.querySelector(".summary-table").innerHTML = `
+        <tr><td>Subtotal</td><td>${subtotal.toFixed(2)}</td></tr>
+        <tr><td>Discount (${discountPercent}%)</td><td>-${discount.toFixed(2)}</td></tr>
+        <tr><td>VAT (10%)</td><td>+${vat.toFixed(2)}</td></tr>
+        <tr><td><b>Grand Total</b></td><td><b>${total.toFixed(2)}</b></td></tr>
+    `;
+}
+
+document.getElementById("discount").addEventListener("input", renderItems);
+</script>
+
+</body>
+</html>
